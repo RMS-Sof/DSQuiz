@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Systems Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            color: #2d3748;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-container {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .question-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .score {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #2d3748;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .option.incorrect {
+            border-color: #f56565;
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-next:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-quit {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .final-results {
+            text-align: center;
+            display: none;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .performance-message {
+            font-size: 1.3em;
+            margin: 20px 0;
+            color: #4a5568;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .question {
+                font-size: 1.1em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <h1 class="title">Distributed Systems Quiz - Supplementary material prepared by Prof. Rahul M. Samant</h1>
+        </div>
+        
+        <div id="quiz-content">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="question-info">
+                <span id="question-counter">Question 1 of 20</span>
+                <span class="score" id="score">Score: 0/0</span>
+            </div>
+            
+            <div class="question-container">
+                <div class="question" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-quit" onclick="quitQuiz()">Quit Quiz</button>
+                <button class="btn btn-next" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+            </div>
+        </div>
+        
+        <div class="final-results" id="final-results">
+            <h2>Quiz Complete!</h2>
+            <div class="final-score" id="final-score"></div>
+            <div class="performance-message" id="performance-message"></div>
+            <button class="btn restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is a distributed system?",
+                options: [
+                    "A system that runs on a single computer",
+                    "A system where components are located on different networked computers",
+                    "A system that uses only cloud computing",
+                    "A system that has multiple processors"
+                ],
+                correct: 1,
+                explanation: "A distributed system consists of multiple autonomous computers that communicate through a network to achieve a common goal."
+            },
+            {
+                question: "What is the CAP theorem?",
+                options: [
+                    "Consistency, Availability, Performance",
+                    "Consistency, Availability, Partition tolerance",
+                    "Concurrency, Availability, Performance",
+                    "Consistency, Atomicity, Partition tolerance"
+                ],
+                correct: 1,
+                explanation: "CAP theorem states that a distributed system can provide at most two of the three guarantees: Consistency, Availability, and Partition tolerance."
+            },
+            {
+                question: "Which of the following is NOT a characteristic of distributed systems?",
+                options: [
+                    "Concurrency",
+                    "Lack of global clock",
+                    "Single point of failure",
+                    "Independent failures"
+                ],
+                correct: 2,
+                explanation: "Distributed systems are designed to avoid single points of failure by distributing components across multiple nodes."
+            },
+            {
+                question: "What is eventual consistency?",
+                options: [
+                    "Data is always consistent immediately",
+                    "Data will become consistent over time without external intervention",
+                    "Consistency is never achieved",
+                    "Data consistency depends on network speed"
+                ],
+                correct: 1,
+                explanation: "Eventual consistency guarantees that, given enough time without updates, all replicas will converge to the same state."
+            },
+            {
+                question: "In the context of distributed systems, what is a partition?",
+                options: [
+                    "A way to divide data",
+                    "A network failure that splits the system",
+                    "A type of database",
+                    "A security mechanism"
+                ],
+                correct: 1,
+                explanation: "A network partition occurs when network failures split the distributed system into multiple isolated groups."
+            },
+            {
+                question: "What is the Byzantine Generals Problem?",
+                options: [
+                    "A scheduling problem",
+                    "A problem of achieving consensus with potentially faulty nodes",
+                    "A load balancing issue",
+                    "A data replication problem"
+                ],
+                correct: 1,
+                explanation: "The Byzantine Generals Problem illustrates the difficulty of achieving consensus in distributed systems where some nodes may be faulty or malicious."
+            },
+            {
+                question: "Which consistency model is the strongest?",
+                options: [
+                    "Eventual consistency",
+                    "Causal consistency",
+                    "Sequential consistency",
+                    "Linearizability"
+                ],
+                correct: 3,
+                explanation: "Linearizability is the strongest consistency model, requiring that operations appear to be instantaneous and in some sequential order."
+            },
+            {
+                question: "What is sharding in distributed databases?",
+                options: [
+                    "Creating backup copies",
+                    "Encrypting data",
+                    "Horizontally partitioning data across multiple servers",
+                    "Compressing data"
+                ],
+                correct: 2,
+                explanation: "Sharding involves distributing data across multiple database servers to improve performance and scalability."
+            },
+            {
+                question: "Which algorithm is commonly used for distributed consensus?",
+                options: [
+                    "Dijkstra's algorithm",
+                    "Raft algorithm",
+                    "QuickSort",
+                    "Binary search"
+                ],
+                correct: 1,
+                explanation: "Raft is a consensus algorithm designed to be understandable and is widely used in distributed systems."
+            },
+            {
+                question: "What is the primary purpose of a load balancer?",
+                options: [
+                    "Store data",
+                    "Distribute incoming requests across multiple servers",
+                    "Encrypt communications",
+                    "Monitor system health"
+                ],
+                correct: 1,
+                explanation: "Load balancers distribute incoming network traffic across multiple servers to ensure no single server becomes overwhelmed."
+            },
+            {
+                question: "In distributed systems, what is 'split-brain'?",
+                options: [
+                    "A type of data structure",
+                    "When multiple nodes believe they are the primary/leader",
+                    "A network protocol",
+                    "A security vulnerability"
+                ],
+                correct: 1,
+                explanation: "Split-brain occurs when network partitions cause multiple nodes to believe they are the leader, potentially causing data inconsistency."
+            },
+            {
+                question: "What is the purpose of a distributed hash table (DHT)?",
+                options: [
+                    "Encrypt data",
+                    "Provide a decentralized key-value storage system",
+                    "Balance network load",
+                    "Monitor system performance"
+                ],
+                correct: 1,
+                explanation: "DHTs provide a way to distribute key-value pairs across multiple nodes in a decentralized manner."
+            },
+            {
+                question: "Which of the following is a vector clock used for?",
+                options: [
+                    "Measuring network latency",
+                    "Determining causal relationships between events",
+                    "Load balancing",
+                    "Data encryption"
+                ],
+                correct: 1,
+                explanation: "Vector clocks help determine the causal ordering of events in distributed systems without synchronized clocks."
+            },
+            {
+                question: "What is the main advantage of microservices architecture?",
+                options: [
+                    "Simpler deployment",
+                    "Better scalability and independent development",
+                    "Lower network overhead",
+                    "Stronger consistency guarantees"
+                ],
+                correct: 1,
+                explanation: "Microservices allow different parts of an application to be developed, deployed, and scaled independently."
+            },
+            {
+                question: "In the context of distributed systems, what is 'gossip protocol'?",
+                options: [
+                    "A security protocol",
+                    "A method for spreading information throughout a network",
+                    "A data compression technique",
+                    "A load balancing algorithm"
+                ],
+                correct: 1,
+                explanation: "Gossip protocols spread information through a network by having nodes periodically exchange information with random peers."
+            },
+            {
+                question: "What is the difference between horizontal and vertical scaling?",
+                options: [
+                    "Horizontal adds more servers, vertical adds more power to existing servers",
+                    "Horizontal is cheaper, vertical is more expensive",
+                    "Horizontal is for databases, vertical is for web servers",
+                    "There is no difference"
+                ],
+                correct: 0,
+                explanation: "Horizontal scaling (scale out) adds more servers, while vertical scaling (scale up) increases the power of existing servers."
+            },
+  {
+        "question": "What is the difference between horizontal and vertical scaling?",
+        "options": [
+            "Horizontal adds more servers, vertical adds more power to existing servers",
+            "Horizontal is cheaper, vertical is more expensive",
+            "Horizontal is for databases, vertical is for web servers",
+            "There is no difference"
+        ],
+        "correct": 0,
+        "explanation": "Horizontal scaling (scale out) adds more servers, while vertical scaling (scale up) increases the power of existing servers."
+    },
+    {
+        "question": "What is the CAP theorem?",
+        "options": [
+            "Consistency, Availability, Partition tolerance - you can only guarantee two",
+            "Capacity, Availability, Performance - fundamental limits of systems",
+            "Concurrency, Atomicity, Persistence - database properties",
+            "Cache, API, Proxy - architectural components"
+        ],
+        "correct": 0,
+        "explanation": "CAP theorem states that in a distributed system, you can only guarantee two of: Consistency, Availability, and Partition tolerance."
+    },
+    {
+        "question": "What is eventual consistency?",
+        "options": [
+            "Data will become consistent over time without external intervention",
+            "Data is always consistent immediately",
+            "Data consistency is not guaranteed",
+            "Data becomes consistent only after manual intervention"
+        ],
+        "correct": 0,
+        "explanation": "Eventual consistency means that given enough time and no new updates, all replicas will converge to the same state."
+    },
+    {
+        "question": "What is a distributed hash table (DHT)?",
+        "options": [
+            "A decentralized data structure for key-value storage across multiple nodes",
+            "A centralized database with hash indexing",
+            "A networking protocol for routing",
+            "A caching mechanism for web applications"
+        ],
+        "correct": 0,
+        "explanation": "A DHT is a distributed system that provides a lookup service similar to a hash table, where data is distributed across multiple nodes."
+    },
+    {
+        "question": "What is the purpose of a load balancer?",
+        "options": [
+            "Distribute incoming requests across multiple servers",
+            "Store data across multiple databases",
+            "Encrypt network traffic",
+            "Monitor system performance"
+        ],
+        "correct": 0,
+        "explanation": "A load balancer distributes incoming network requests across multiple backend servers to ensure no single server is overwhelmed."
+    },
+    {
+        "question": "What is the Byzantine Generals Problem?",
+        "options": [
+            "Achieving consensus in the presence of malicious actors",
+            "Coordinating network routing tables",
+            "Managing database transactions",
+            "Handling network partitions"
+        ],
+        "correct": 0,
+        "explanation": "The Byzantine Generals Problem addresses how to achieve consensus among distributed parties when some may be malicious or unreliable."
+    },
+    {
+        "question": "What is sharding in databases?",
+        "options": [
+            "Horizontally partitioning data across multiple database instances",
+            "Creating backup copies of data",
+            "Encrypting sensitive data",
+            "Compressing data to save space"
+        ],
+        "correct": 0,
+        "explanation": "Sharding involves splitting a database horizontally, distributing rows across multiple database instances based on a shard key."
+    },
+    {
+        "question": "What is the Two-Phase Commit protocol?",
+        "options": [
+            "A distributed transaction protocol ensuring atomicity across multiple nodes",
+            "A data replication strategy",
+            "A consensus algorithm",
+            "A load balancing technique"
+        ],
+        "correct": 0,
+        "explanation": "Two-Phase Commit (2PC) is a protocol that ensures all participants in a distributed transaction either commit or abort together."
+    },
+    {
+        "question": "What is BASE in distributed systems?",
+        "options": [
+            "Basically Available, Soft state, Eventual consistency",
+            "Backup, Archive, Store, Execute",
+            "Balance, Allocate, Scale, Evaluate",
+            "Build, Analyze, Scale, Execute"
+        ],
+        "correct": 0,
+        "explanation": "BASE is an alternative to ACID properties, emphasizing availability and eventual consistency over strict consistency."
+    },
+    {
+        "question": "What is a microservice architecture?",
+        "options": [
+            "An architectural pattern where applications are built as a suite of small, independent services",
+            "A single large application deployed on multiple servers",
+            "A database design pattern",
+            "A network security framework"
+        ],
+        "correct": 0,
+        "explanation": "Microservices architecture breaks down applications into small, loosely coupled services that can be developed and deployed independently."
+    },
+    {
+        "question": "What is the purpose of a message queue?",
+        "options": [
+            "Asynchronous communication between distributed components",
+            "Storing user session data",
+            "Caching frequently accessed data",
+            "Load balancing HTTP requests"
+        ],
+        "correct": 0,
+        "explanation": "Message queues enable asynchronous communication by allowing producers to send messages that consumers can process later."
+    },
+    {
+        "question": "What is the Paxos algorithm used for?",
+        "options": [
+            "Achieving consensus in distributed systems",
+            "Load balancing requests",
+            "Data encryption",
+            "Network routing"
+        ],
+        "correct": 0,
+        "explanation": "Paxos is a consensus algorithm that allows distributed systems to agree on a single value even in the presence of failures."
+    },
+    {
+        "question": "What is a vector clock?",
+        "options": [
+            "A mechanism to capture causality between events in distributed systems",
+            "A time synchronization protocol",
+            "A performance monitoring tool",
+            "A network routing algorithm"
+        ],
+        "correct": 0,
+        "explanation": "Vector clocks are used to determine the causal ordering of events in distributed systems without requiring synchronized clocks."
+    },
+    {
+        "question": "What is the difference between strong and weak consistency?",
+        "options": [
+            "Strong consistency guarantees immediate consistency, weak allows temporary inconsistencies",
+            "Strong is faster, weak is slower",
+            "Strong uses more memory, weak uses less",
+            "There is no practical difference"
+        ],
+        "correct": 0,
+        "explanation": "Strong consistency ensures all nodes see the same data simultaneously, while weak consistency allows temporary inconsistencies."
+    },
+    {
+        "question": "What is a consensus algorithm?",
+        "options": [
+            "An algorithm that helps distributed nodes agree on a single value or decision",
+            "A load balancing strategy",
+            "A data compression technique",
+            "A security protocol"
+        ],
+        "correct": 0,
+        "explanation": "Consensus algorithms enable distributed systems to agree on shared state or decisions despite failures and network issues."
+    },
+    {
+        "question": "What is MapReduce?",
+        "options": [
+            "A programming model for processing large datasets across distributed clusters",
+            "A database indexing technique",
+            "A network routing protocol",
+            "A caching strategy"
+        ],
+        "correct": 0,
+        "explanation": "MapReduce is a programming model that processes large datasets by mapping tasks across nodes and reducing results."
+    },
+    {
+        "question": "What is the purpose of circuit breaker pattern?",
+        "options": [
+            "Prevent cascading failures by failing fast when a service is unavailable",
+            "Load balance requests across servers",
+            "Cache frequently accessed data",
+            "Encrypt network communications"
+        ],
+        "correct": 0,
+        "explanation": "Circuit breaker pattern prevents cascading failures by monitoring service health and failing fast when issues are detected."
+    },
+    {
+        "question": "What is data partitioning?",
+        "options": [
+            "Dividing data across multiple storage nodes based on some criteria",
+            "Creating backup copies of data",
+            "Compressing data for storage efficiency",
+            "Encrypting data for security"
+        ],
+        "correct": 0,
+        "explanation": "Data partitioning involves splitting data across multiple nodes to improve performance, scalability, and manageability."
+    },
+    {
+        "question": "What is the difference between synchronous and asynchronous replication?",
+        "options": [
+            "Synchronous waits for confirmation from replicas, asynchronous doesn't",
+            "Synchronous is faster, asynchronous is slower",
+            "Synchronous uses more bandwidth, asynchronous uses less",
+            "There is no difference in distributed systems"
+        ],
+        "correct": 0,
+        "explanation": "Synchronous replication waits for acknowledgment from all replicas before confirming a write, while asynchronous doesn't wait."
+    },
+    {
+        "question": "What is a distributed lock?",
+        "options": [
+            "A mechanism to coordinate access to shared resources across multiple nodes",
+            "A security feature for network communications",
+            "A performance optimization technique",
+            "A data compression algorithm"
+        ],
+        "correct": 0,
+        "explanation": "Distributed locks ensure that only one process across multiple nodes can access a shared resource at a time."
+    },
+    {
+        "question": "What is the Raft consensus algorithm?",
+        "options": [
+            "A consensus algorithm designed to be more understandable than Paxos",
+            "A load balancing technique",
+            "A data replication strategy",
+            "A network routing protocol"
+        ],
+        "correct": 0,
+        "explanation": "Raft is a consensus algorithm that provides strong consistency and is designed to be more understandable than Paxos."
+    },
+    {
+        "question": "What is a gossip protocol?",
+        "options": [
+            "A communication protocol where nodes periodically exchange state information",
+            "A security protocol for authentication",
+            "A data compression technique",
+            "A load balancing algorithm"
+        ],
+        "correct": 0,
+        "explanation": "Gossip protocols enable nodes to share information by periodically exchanging state with randomly selected peers."
+    },
+    {
+        "question": "What is the purpose of a reverse proxy?",
+        "options": [
+            "Forward client requests to backend servers and return responses",
+            "Cache data on client machines",
+            "Encrypt all network traffic",
+            "Monitor system performance"
+        ],
+        "correct": 0,
+        "explanation": "A reverse proxy sits between clients and servers, forwarding requests to backend servers and providing benefits like load balancing and caching."
+    },
+    {
+        "question": "What is idempotency in distributed systems?",
+        "options": [
+            "Operations that can be applied multiple times without changing the result",
+            "Operations that are very fast to execute",
+            "Operations that use minimal memory",
+            "Operations that require authentication"
+        ],
+        "correct": 0,
+        "explanation": "Idempotent operations produce the same result whether executed once or multiple times, crucial for retry mechanisms."
+    },
+    {
+        "question": "What is the split-brain problem?",
+        "options": [
+            "When a distributed system splits into multiple partitions that operate independently",
+            "When a system runs out of memory",
+            "When network latency becomes too high",
+            "When too many requests overwhelm the system"
+        ],
+        "correct": 0,
+        "explanation": "Split-brain occurs when network partitions cause different parts of a system to operate independently, potentially causing inconsistencies."
+    },
+    {
+        "question": "What is a content delivery network (CDN)?",
+        "options": [
+            "A geographically distributed network of servers that cache content closer to users",
+            "A database replication system",
+            "A load balancing technique",
+            "A network security framework"
+        ],
+        "correct": 0,
+        "explanation": "CDNs improve performance by caching content at edge locations closer to users, reducing latency and bandwidth usage."
+    },
+    {
+        "question": "What is the difference between CP and AP systems in CAP theorem?",
+        "options": [
+            "CP prioritizes consistency and partition tolerance, AP prioritizes availability and partition tolerance",
+            "CP is faster, AP is more reliable",
+            "CP uses more memory, AP uses less",
+            "CP is for databases, AP is for web services"
+        ],
+        "correct": 0,
+        "explanation": "CP systems maintain consistency during partitions but may become unavailable, while AP systems remain available but may become inconsistent."
+    },
+    {
+        "question": "What is a quorum in distributed systems?",
+        "options": [
+            "The minimum number of nodes that must agree for an operation to proceed",
+            "The maximum number of nodes in a cluster",
+            "The average response time of nodes",
+            "The total bandwidth of the system"
+        ],
+        "correct": 0,
+        "explanation": "A quorum is the minimum number of nodes required to perform operations, ensuring consistency and fault tolerance."
+    },
+    {
+        "question": "What is the bulkhead pattern?",
+        "options": [
+            "Isolating resources to prevent failures from cascading across the entire system",
+            "A data compression technique",
+            "A load balancing strategy",
+            "A security authentication method"
+        ],
+        "correct": 0,
+        "explanation": "The bulkhead pattern isolates critical resources to prevent failures in one component from affecting others."
+    },
+    {
+        "question": "What is leader election in distributed systems?",
+        "options": [
+            "A process where nodes choose one node to coordinate activities",
+            "A load balancing technique",
+            "A data replication strategy",
+            "A security authorization method"
+        ],
+        "correct": 0,
+        "explanation": "Leader election is a process where distributed nodes select one node to act as a coordinator or make decisions for the group."
+    },
+    {
+        "question": "What is the difference between stateful and stateless services?",
+        "options": [
+            "Stateful services maintain session information, stateless don't",
+            "Stateful services are faster, stateless are slower",
+            "Stateful services use more CPU, stateless use more memory",
+            "There is no practical difference"
+        ],
+        "correct": 0,
+        "explanation": "Stateful services store client session information between requests, while stateless services treat each request independently."
+    },
+    {
+        "question": "What is a service mesh?",
+        "options": [
+            "A dedicated infrastructure layer for managing service-to-service communications",
+            "A database clustering technique",
+            "A load balancing algorithm",
+            "A network security protocol"
+        ],
+        "correct": 0,
+        "explanation": "A service mesh provides a dedicated layer for handling service communications, including routing, security, and observability."
+    },
+    {
+        "question": "What is the purpose of heartbeat messages?",
+        "options": [
+            "Monitor the health and availability of nodes in a distributed system",
+            "Synchronize clocks across nodes",
+            "Load balance requests",
+            "Encrypt communications"
+        ],
+        "correct": 0,
+        "explanation": "Heartbeat messages are periodic signals sent between nodes to indicate they are alive and functioning properly."
+    },
+    {
+        "question": "What is data locality in distributed systems?",
+        "options": [
+            "Keeping data close to where it's processed to minimize network overhead",
+            "Storing all data in one central location",
+            "Encrypting data based on geographic location",
+            "Compressing data to save storage space"
+        ],
+        "correct": 0,
+        "explanation": "Data locality involves placing data near the computation to reduce network latency and bandwidth usage."
+    },
+    {
+        "question": "What is the SAGA pattern?",
+        "options": [
+            "A pattern for managing distributed transactions as a sequence of local transactions",
+            "A data caching strategy",
+            "A load balancing technique",
+            "A network routing protocol"
+        ],
+        "correct": 0,
+        "explanation": "SAGA pattern manages distributed transactions by breaking them into a series of local transactions with compensating actions."
+    },
+    {
+        "question": "What is horizontal partitioning?",
+        "options": [
+            "Splitting table rows across multiple database instances",
+            "Splitting table columns across multiple databases",
+            "Creating multiple identical copies of data",
+            "Compressing data to reduce storage"
+        ],
+        "correct": 0,
+        "explanation": "Horizontal partitioning (sharding) distributes table rows across multiple database instances based on a partition key."
+    },
+    {
+        "question": "What is vertical partitioning?",
+        "options": [
+            "Splitting table columns across multiple database instances",
+            "Splitting table rows across multiple databases",
+            "Creating backup copies of tables",
+            "Indexing tables for faster queries"
+        ],
+        "correct": 0,
+        "explanation": "Vertical partitioning splits a table by columns, storing different sets of columns on different database instances."
+    },
+    {
+        "question": "What is the difference between ACID and BASE properties?",
+        "options": [
+            "ACID emphasizes consistency, BASE emphasizes availability",
+            "ACID is for NoSQL, BASE is for SQL databases",
+            "ACID is faster, BASE is more secure",
+            "There is no significant difference"
+        ],
+        "correct": 0,
+        "explanation": "ACID properties emphasize strict consistency and isolation, while BASE properties prioritize availability and eventual consistency."
+    },
+    {
+        "question": "What is a distributed transaction?",
+        "options": [
+            "A transaction that spans multiple databases or services",
+            "A transaction that takes a long time to complete",
+            "A transaction that involves multiple users",
+            "A transaction that requires special permissions"
+        ],
+        "correct": 0,
+        "explanation": "A distributed transaction involves operations across multiple databases or services that must all succeed or fail together."
+    },
+    {
+        "question": "What is the Three-Phase Commit protocol?",
+        "options": [
+            "An extension of 2PC that adds a prepare-to-commit phase to handle coordinator failures",
+            "A data replication strategy with three copies",
+            "A load balancing technique with three servers",
+            "A security protocol with three authentication factors"
+        ],
+        "correct": 0,
+        "explanation": "3PC extends 2PC by adding a prepare-to-commit phase to better handle coordinator failures and reduce blocking."
+    },
+    {
+        "question": "What is read repair in distributed databases?",
+        "options": [
+            "A technique to fix inconsistent data discovered during read operations",
+            "A method to optimize read performance",
+            "A way to cache frequently read data",
+            "A security measure for read operations"
+        ],
+        "correct": 0,
+        "explanation": "Read repair detects and fixes inconsistencies between replicas when data is read, helping maintain eventual consistency."
+    },
+    {
+        "question": "What is the purpose of a distributed cache?",
+        "options": [
+            "Store frequently accessed data across multiple nodes for faster retrieval",
+            "Backup important data to multiple locations",
+            "Encrypt sensitive data across the network",
+            "Monitor system performance across nodes"
+        ],
+        "correct": 0,
+        "explanation": "Distributed caches store frequently accessed data across multiple nodes to reduce latency and database load."
+    },
+    {
+        "question": "What is consistent hashing?",
+        "options": [
+            "A hashing technique that minimizes rehashing when nodes are added or removed",
+            "A method to ensure all hash values are identical",
+            "A security technique for password hashing",
+            "A way to compress data using hash functions"
+        ],
+        "correct": 0,
+        "explanation": "Consistent hashing distributes data across nodes in a way that minimizes redistribution when the cluster size changes."
+    },
+    {
+        "question": "What is the actor model in distributed systems?",
+        "options": [
+            "A computational model where actors communicate through message passing",
+            "A database design pattern",
+            "A network routing algorithm",
+            "A security authentication framework"
+        ],
+        "correct": 0,
+        "explanation": "The actor model treats concurrent computation as a collection of actors that communicate exclusively through messages."
+    },
+    {
+        "question": "What is eventual consistency?",
+        "options": [
+            "A consistency model where the system will become consistent over time",
+            "A model where consistency is never guaranteed",
+            "A model where consistency is immediate",
+            "A model where consistency requires manual intervention"
+        ],
+        "correct": 0,
+        "explanation": "Eventual consistency guarantees that if no new updates are made, all replicas will eventually converge to the same state."
+    },
+    {
+        "question": "What is the purpose of a service registry?",
+        "options": [
+            "A central repository where services register their locations and capabilities",
+            "A database for storing user information",
+            "A cache for frequently accessed data",
+            "A security system for authentication"
+        ],
+        "correct": 0,
+        "explanation": "Service registries allow services to register themselves and enable other services to discover and locate them dynamically."
+    },
+    {
+        "question": "What is backpressure in distributed systems?",
+        "options": [
+            "A flow control mechanism to prevent overwhelming downstream services",
+            "A data compression technique",
+            "A network routing optimization",
+            "A security measure against attacks"
+        ],
+        "correct": 0,
+        "explanation": "Backpressure is a flow control mechanism that prevents fast producers from overwhelming slower consumers in a system."
+    },
+    {
+        "question": "What is the difference between push and pull models in messaging?",
+        "options": [
+            "Push sends messages to consumers, pull has consumers request messages",
+            "Push is faster, pull is more reliable",
+            "Push uses more bandwidth, pull uses less",
+            "Push is for databases, pull is for web services"
+        ],
+        "correct": 0,
+        "explanation": "In push models, producers send messages directly to consumers, while in pull models, consumers request messages from producers."
+    },
+    {
+        "question": "What is a hot spot in distributed systems?",
+        "options": [
+            "A node that receives disproportionately more load than others",
+            "A node with the highest CPU temperature",
+            "A node with the fastest network connection",
+            "A node with the most storage capacity"
+        ],
+        "correct": 0,
+        "explanation": "A hot spot is a node that becomes a bottleneck by receiving much more traffic or requests than other nodes in the system."
+    },
+    {
+        "question": "What is the purpose of connection pooling?",
+        "options": [
+            "Reuse database connections to reduce overhead of creating new connections",
+            "Balance load across multiple database servers",
+            "Cache query results for faster access",
+            "Encrypt database communications"
+        ],
+        "correct": 0,
+        "explanation": "Connection pooling maintains a cache of database connections that can be reused, reducing the overhead of establishing new connections."
+    },
+    {
+        "question": "What is a distributed file system?",
+        "options": [
+            "A file system that stores data across multiple machines",
+            "A file system that uses advanced compression",
+            "A file system with built-in encryption",
+            "A file system optimized for small files"
+        ],
+        "correct": 0,
+        "explanation": "Distributed file systems store and manage files across multiple machines, providing scalability and fault tolerance."
+    },
+    {
+        "question": "What is the difference between master-slave and master-master replication?",
+        "options": [
+            "Master-slave has one writable node, master-master has multiple writable nodes",
+            "Master-slave is faster, master-master is more reliable",
+            "Master-slave uses more memory, master-master uses less",
+            "Master-slave is for SQL, master-master is for NoSQL"
+        ],
+        "correct": 0,
+        "explanation": "Master-slave replication has one primary node for writes, while master-master allows writes to multiple primary nodes."
+    },
+    {
+        "question": "What is a bloom filter?",
+        "options": [
+            "A probabilistic data structure to test set membership with possible false positives",
+            "A network security filter for malicious traffic",
+            "A data compression algorithm",
+            "A load balancing technique"
+        ],
+        "correct": 0,
+        "explanation": "Bloom filters are space-efficient probabilistic data structures that can test whether an element is in a set, with possible false positives but no false negatives."
+    },
+    {
+        "question": "What is the purpose of a write-ahead log (WAL)?",
+        "options": [
+            "Ensure durability by logging changes before applying them to the database",
+            "Improve read performance by caching queries",
+            "Load balance write operations across servers",
+            "Encrypt sensitive data before storage"
+        ],
+        "correct": 0,
+        "explanation": "Write-ahead logs ensure durability by recording changes to a log before applying them to the database, enabling recovery after failures."
+    },
+    {
+        "question": "What is the Byzantine fault tolerance?",
+        "options": [
+            "The ability to continue operating correctly even when some nodes behave maliciously",
+            "The ability to handle network partitions",
+            "The ability to scale to more nodes",
+            "The ability to recover from hardware failures"
+        ],
+        "correct": 0,
+        "explanation": "Byzantine fault tolerance allows a system to function correctly even when some nodes fail in arbitrary ways or act maliciously."
+    },
+    {
+        "question": "What is event sourcing?",
+        "options": [
+            "A pattern where state changes are stored as a sequence of events",
+            "A method for handling user interface events",
+            "A technique for optimizing database queries",
+            "A security pattern for audit logging"
+        ],
+        "correct": 0,
+        "explanation": "Event sourcing stores all changes to application state as a sequence of events, allowing complete reconstruction of past states."
+    },
+    {
+        "question": "What is CQRS (Command Query Responsibility Segregation)?",
+        "options": [
+            "A pattern that separates read and write operations into different models",
+            "A database indexing strategy",
+            "A network security protocol",
+            "A load balancing technique"
+        ],
+        "correct": 0,
+        "explanation": "CQRS separates the models for reading and writing data, allowing independent optimization of each operation type."
+    },
+    {
+        "question": "What is the purpose of a distributed lock manager?",
+        "options": [
+            "Coordinate access to shared resources across multiple nodes",
+            "Manage database transactions",
+            "Load balance network requests",
+            "Monitor system performance"
+        ],
+        "correct": 0,
+        "explanation": "Distributed lock managers provide mutual exclusion for shared resources across multiple nodes in a distributed system."
+    },
+    {
+        "question": "What is data replication?",
+        "options": [
+            "Creating and maintaining multiple copies of data across different nodes",
+            "Compressing data to save storage space",
+            "Encrypting data for security",
+            "Indexing data for faster queries"
+        ],
+        "correct": 0,
+        "explanation": "Data replication involves creating and maintaining multiple copies of data across different nodes to improve availability and performance."
+    },
+    {
+        "question": "What is the difference between synchronous and asynchronous messaging?",
+        "options": [
+            "Synchronous blocks until response is received, asynchronous doesn't wait",
+            "Synchronous is faster, asynchronous is more reliable",
+            "Synchronous uses more memory, asynchronous uses more CPU",
+            "Synchronous is for databases, asynchronous is for web services"
+        ],
+        "correct": 0,
+        "explanation": "Synchronous messaging blocks the sender until a response is received, while asynchronous messaging allows the sender to continue without waiting."
+    },
+    {
+        "question": "What is a partition in distributed systems?",
+        "options": [
+            "A network failure that splits the system into isolated groups",
+            "A way to organize data in databases",
+            "A security boundary between services",
+            "A performance optimization technique"
+        ],
+        "correct": 0,
+        "explanation": "A partition is a network failure that prevents some nodes from communicating with others, potentially splitting the system into isolated groups."
+    },
+    {
+        "question": "What is the difference between optimistic and pessimistic locking?",
+        "options": [
+            "Optimistic assumes no conflicts, pessimistic locks resources preemptively",
+            "Optimistic is faster, pessimistic is more secure",
+            "Optimistic uses more memory, pessimistic uses more CPU",
+            "Optimistic is for reads, pessimistic is for writes"
+        ],
+        "correct": 0,
+        "explanation": "Optimistic locking assumes conflicts are rare and checks for conflicts at commit time, while pessimistic locking acquires locks before accessing resources."
+    },
+    {
+        "question": "What is a merkle tree?",
+        "options": [
+            "A binary tree where each leaf is a hash of data and each node is a hash of its children",
+            "A data structure for storing hierarchical data",
+            "A network routing algorithm",
+            "A load balancing technique"
+        ],
+        "correct": 0,
+        "explanation": "Merkle trees are binary trees where leaves contain data hashes and internal nodes contain hashes of their children, enabling efficient verification of large data structures."
+    },
+    {
+        "question": "What is the purpose of rate limiting?",
+        "options": [
+            "Control the number of requests a client can make within a time period",
+            "Optimize database query performance",
+            "Balance load across multiple servers",
+            "Encrypt network communications"
+        ],
+        "correct": 0,
+        "explanation": "Rate limiting controls the number of requests a client can make within a specified time period to prevent abuse and ensure fair usage."
+    },
+    {
+        "question": "What is a coordinator in distributed transactions?",
+        "options": [
+            "A node that manages the transaction protocol across multiple participants",
+            "A load balancer that distributes requests",
+            "A database that stores transaction logs",
+            "A security component that validates permissions"
+        ],
+        "correct": 0,
+        "explanation": "A coordinator is a node responsible for managing distributed transaction protocols like 2PC, ensuring all participants commit or abort together."
+    },
+    {
+        "question": "What is the purpose of a distributed consensus?",
+        "options": [
+            "Ensure multiple nodes agree on a single value or decision",
+            "Load balance requests across nodes",
+            "Replicate data across multiple locations",
+            "Monitor system health and performance"
+        ],
+        "correct": 0,
+        "explanation": "Distributed consensus algorithms ensure that multiple nodes in a distributed system can agree on a single value or decision despite failures."
+    },
+    {
+        "question": "What is linearizability?",
+        "options": [
+            "A strong consistency model where operations appear to execute atomically at some point between start and completion",
+            "A performance optimization technique",
+            "A data compression algorithm",
+            "A network routing strategy"
+        ],
+        "correct": 0,
+        "explanation": "Linearizability is the strongest consistency model, where each operation appears to execute atomically at some instant between its start and completion."
+    },
+    {
+        "question": "What is causal consistency?",
+        "options": [
+            "A consistency model that preserves causal relationships between operations",
+            "A model that ensures immediate consistency",
+            "A model that provides no consistency guarantees",
+            "A model that only works with single-node systems"
+        ],
+        "correct": 0,
+        "explanation": "Causal consistency ensures that operations that are causally related are seen by all processes in the same order."
+    },
+    {
+        "question": "What is the purpose of checksums in distributed systems?",
+        "options": [
+            "Detect data corruption during transmission or storage",
+            "Encrypt sensitive data",
+            "Compress data for efficient storage",
+            "Load balance network traffic"
+        ],
+        "correct": 0,
+        "explanation": "Checksums are used to detect errors in data that may have been corrupted during transmission or storage in distributed systems."
+    },
+    {
+        "question": "What is a distributed queue?",
+        "options": [
+            "A queue data structure that spans multiple nodes for scalability and fault tolerance",
+            "A database table optimized for sequential access",
+            "A network protocol for routing messages",
+            "A caching mechanism for frequently accessed data"
+        ],
+        "correct": 0,
+        "explanation": "Distributed queues provide queue functionality across multiple nodes, offering better scalability and fault tolerance than single-node queues."
+    },
+            {
+                question: "What is the purpose of a consensus algorithm in distributed systems?",
+                options: [
+                    "To encrypt data",
+                    "To ensure all nodes agree on a single value or state",
+                    "To balance load",
+                    "To compress data"
+                ],
+                correct: 1,
+                explanation: "Consensus algorithms ensure that distributed nodes can agree on a single value or system state despite failures."
+            },
+            {
+                question: "Which of the following is an example of BASE properties?",
+                options: [
+                    "Basically Available, Soft state, Eventual consistency",
+                    "Backup Available, Strong state, Error consistency",
+                    "Basic Availability, Simple state, Easy consistency",
+                    "Batch Available, Stable state, Exact consistency"
+                ],
+                correct: 0,
+                explanation: "BASE (Basically Available, Soft state, Eventual consistency) is an alternative to ACID properties for distributed systems."
+            },
+            {
+                question: "What is the purpose of a circuit breaker pattern?",
+                options: [
+                    "To encrypt network traffic",
+                    "To prevent cascading failures by temporarily disabling failing services",
+                    "To balance database load",
+                    "To compress data transmission"
+                ],
+                correct: 1,
+                explanation: "Circuit breakers prevent cascading failures by detecting when a service is failing and temporarily stopping calls to it."
+            },
+            {
+                question: "In distributed systems, what is 'leader election'?",
+                options: [
+                    "Choosing the fastest server",
+                    "The process of selecting one node to coordinate activities",
+                    "Selecting the server with most memory",
+                    "A load balancing technique"
+                ],
+                correct: 1,
+                explanation: "Leader election is the process of designating a single node as the coordinator or primary node in a distributed system."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let answered = false;
+
+        function initQuiz() {
+            displayQuestion();
+            updateProgress();
+            updateScore();
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').disabled = true;
+            selectedOption = null;
+            answered = false;
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+            
+            selectedOption = index;
+            answered = true;
+            
+            const options = document.querySelectorAll('.option');
+            const question = questions[currentQuestion];
+            
+            options.forEach((option, i) => {
+                option.style.pointerEvents = 'none';
+                if (i === question.correct) {
+                    option.classList.add('correct');
+                } else if (i === selectedOption) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback');
+            const isCorrect = selectedOption === question.correct;
+            
+            if (isCorrect) {
+                score++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `<strong>Correct!</strong> ${question.explanation}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `<strong>Incorrect.</strong> ${question.explanation}`;
+            }
+            
+            feedback.style.display = 'block';
+            document.getElementById('next-btn').disabled = false;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showFinalResults();
+            } else {
+                displayQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = `Score: ${score}/${currentQuestion + (answered ? 1 : 0)}`;
+        }
+
+        function showFinalResults() {
+            document.getElementById('quiz-content').style.display = 'none';
+            document.getElementById('final-results').style.display = 'block';
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = `${score}/${questions.length} (${percentage}%)`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🎉 Outstanding! You have excellent knowledge of distributed systems!';
+            } else if (percentage >= 80) {
+                message = '👏 Great job! You have a solid understanding of distributed systems.';
+            } else if (percentage >= 70) {
+                message = '👍 Good work! You have a decent grasp of distributed systems concepts.';
+            } else if (percentage >= 60) {
+                message = '📚 Not bad! Consider reviewing some distributed systems concepts.';
+            } else {
+                message = '📖 Keep learning! Distributed systems can be challenging but very rewarding.';
+            }
+            
+            document.getElementById('performance-message').textContent = message;
+        }
+
+        function quitQuiz() {
+            if (confirm('Are you sure you want to quit the quiz? Your progress will be lost.')) {
+                showFinalResults();
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            answered = false;
+            
+            document.getElementById('quiz-content').style.display = 'block';
+            document.getElementById('final-results').style.display = 'none';
+            
+            // Reset option styles
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'auto';
+                option.className = 'option';
+            });
+            
+            initQuiz();
+        }
+
+        // Start the quiz when page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
